@@ -1,0 +1,80 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddPatientForm : Form
+    {
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddPatientForm()
+        {
+            InitializeComponent();
+            InitializeGenderComboBox();  // Populate the ComboBox with Male and Female options
+        }
+
+        // Method to populate the gender ComboBox with Male and Female
+        private void InitializeGenderComboBox()
+        {
+            cmbGender.Items.Add("Male");
+            cmbGender.Items.Add("Female");
+        }
+
+        // Event handler for the Add button click
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            string firstName = txtFirstName.Text;
+            string lastName = txtLastName.Text;
+            string dateOfBirth = dtpDateOfBirth.Text;
+
+            // Check if a valid gender is selected
+            string gender = cmbGender.SelectedItem?.ToString();
+
+            if (string.IsNullOrEmpty(gender))
+            {
+                MessageBox.Show("Please select a gender (Male or Female).");
+                return; // Exit the method if no gender is selected
+            }
+
+            // Check if the selected gender is valid
+            if (gender != "Male" && gender != "Female")
+            {
+                MessageBox.Show("Invalid gender selected. Please choose Male or Female.");
+                return;
+            }
+
+            string contactNumber = txtContactNumber.Text;
+            string address = txtAddress.Text;
+
+            // Insert the new patient data into the database
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    string query = "INSERT INTO Patients (first_name, last_name, date_of_birth, gender, contact_number, address) " +
+                                   "VALUES (@FirstName, @LastName, @DateOfBirth, @Gender, @ContactNumber, @Address)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@FirstName", firstName);
+                    cmd.Parameters.AddWithValue("@LastName", lastName);
+                    cmd.Parameters.AddWithValue("@DateOfBirth", dateOfBirth);
+                    cmd.Parameters.AddWithValue("@Gender", gender);
+                    cmd.Parameters.AddWithValue("@ContactNumber", contactNumber);
+                    cmd.Parameters.AddWithValue("@Address", address);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+
+                    MessageBox.Show("Patient added successfully!");
+                    this.DialogResult = DialogResult.OK;  // Close form with OK result
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error adding patient: " + ex.Message);
+            }
+        }
+    }
+}
