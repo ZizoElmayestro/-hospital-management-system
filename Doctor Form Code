@@ -1,0 +1,97 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class DoctorsForm : Form
+    {
+        // Connection string 
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public DoctorsForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtDoctorId TextBox
+        private void txtDoctorId_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchDoctor();  // Trigger search when Enter is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchDoctor();  // Trigger search when the button is clicked
+        }
+
+        // Method to search and display doctor information in DataGridView
+        private void SearchDoctor()
+        {
+            int doctorId;
+            string doctorIdText = txtDoctorId.Text.Trim();
+
+            if (string.IsNullOrEmpty(doctorIdText) || !int.TryParse(doctorIdText, out doctorId))
+            {
+                MessageBox.Show("Please enter a valid doctor ID.");
+                return;
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "SELECT first_name, last_name, specialty, contact_number, email " +
+                                   "FROM Doctors WHERE doctor_id = @doctor_id";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@doctor_id", doctorId);
+
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            adapter.Fill(dt);
+
+                            // Display the results in the DataGridView
+                            if (dt.Rows.Count > 0)
+                            {
+                                dataGridViewDoctors.DataSource = dt;
+                            }
+                            else
+                            {
+                                MessageBox.Show("Doctor not found.");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the error to a file (optional) and show a user-friendly message
+                    // File.AppendAllText("error_log.txt", ex.ToString() + Environment.NewLine);
+                    MessageBox.Show("Error searching for doctor: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the Add Doctor button click
+        private void btnAddDoctor_Click(object sender, EventArgs e)
+        {
+            // Open the AddDoctorForm when the Add Doctor button is clicked
+            AddDoctorForm addDoctorForm = new AddDoctorForm();
+            addDoctorForm.ShowDialog();  // Display the form as a dialog
+        }
+
+        // Optional: Load data when form loads (if needed)
+        private void DoctorsForm_Load(object sender, EventArgs e)
+        {
+          
+        }
+
+    }
+}
