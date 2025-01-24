@@ -1,0 +1,57 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddNurseForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+        
+        public AddNurseForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for adding a new nurse
+        private void btnAddNurse_Click(object sender, EventArgs e)
+        {
+            string firstName = txtFirstName.Text;
+            string lastName = txtLastName.Text;
+            string department = txtDepartment.Text;
+            string contactNumber = txtContactNumber.Text;
+            string email = txtEmail.Text;
+
+            // Insert the nurse details into the database
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "INSERT INTO Nurses (first_name, last_name, department, contact_number, email) " +
+                                   "VALUES (@firstName, @lastName, @department, @contactNumber, @email)";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@lastName", lastName);
+                    cmd.Parameters.AddWithValue("@department", department);
+                    cmd.Parameters.AddWithValue("@contactNumber", contactNumber);
+                    cmd.Parameters.AddWithValue("@email", email);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Nurse added successfully.");
+                    this.Close(); // Optionally, close the form after adding the nurse
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
+        }
+
+        private void AddNurseForm_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
