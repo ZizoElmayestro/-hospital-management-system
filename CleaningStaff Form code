@@ -1,0 +1,95 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class Form7 : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public Form7()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtStaffID TextBox
+        private void txtStaffID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchCleaningStaff();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchCleaningStaff();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display cleaning staff information in DataGridView
+        private void SearchCleaningStaff()
+        {
+            int staffId;
+            // Validate if the input Staff ID is a valid integer
+            if (!int.TryParse(txtStaffID.Text, out staffId))
+            {
+                MessageBox.Show("Please enter a valid Staff ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for cleaning staff by their ID
+                    string query = "SELECT first_name, last_name, contact_number, shift_time " +
+                                   "FROM CleaningStaff WHERE staff_id = @StaffID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@StaffID", staffId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no staff is found
+                        MessageBox.Show("Cleaning staff not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for cleaning staff: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the "Add New Cleaning Staff" button click
+        private void btnGoToAddCleaningStaff_Click(object sender, EventArgs e)
+        {
+            // Create an instance of the AddCleaningStaffForm and show it
+            AddCleaningStaffForm addCleaningStaffForm = new AddCleaningStaffForm();
+            addCleaningStaffForm.Show(); // Show the form
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void CleaningStaffForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+    }
+}
