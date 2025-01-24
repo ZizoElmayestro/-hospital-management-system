@@ -1,0 +1,53 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddDriver : Form
+    {
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddDriver()
+        {
+            InitializeComponent();
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            // Validate the inputs
+            if (string.IsNullOrEmpty(txtFirstName.Text) || string.IsNullOrEmpty(txtLastName.Text) ||
+                string.IsNullOrEmpty(txtContactNumber.Text) || string.IsNullOrEmpty(txtLicenseNumber.Text))
+            {
+                MessageBox.Show("Please fill in all fields.");
+                return;
+            }
+
+            // Insert the new driver into the database
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "INSERT INTO AmbulanceDrivers (first_name, last_name, contact_number, license_number) " +
+                                   "VALUES (@FirstName, @LastName, @ContactNumber, @LicenseNumber)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text);
+                    cmd.Parameters.AddWithValue("@LastName", txtLastName.Text);
+                    cmd.Parameters.AddWithValue("@ContactNumber", txtContactNumber.Text);
+                    cmd.Parameters.AddWithValue("@LicenseNumber", txtLicenseNumber.Text);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    MessageBox.Show("New ambulance driver added successfully!");
+                    this.Close();  // Close the form after adding the driver
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error adding driver: " + ex.Message);
+                }
+            }
+        }
+    }
+}
