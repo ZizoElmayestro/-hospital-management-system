@@ -1,0 +1,94 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class SurgeonsForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public SurgeonsForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtSurgeonID TextBox
+        private void txtSurgeonID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchSurgeon();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchSurgeon();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display surgeon information in DataGridView
+        private void SearchSurgeon()
+        {
+            int surgeonId;
+            // Validate if the input Surgeon ID is a valid integer
+            if (!int.TryParse(txtSurgeonID.Text, out surgeonId))
+            {
+                MessageBox.Show("Please enter a valid Surgeon ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for a surgeon by their ID
+                    string query = "SELECT surgeon_name, surgery_specialty, years_of_experience " +
+                                   "FROM Surgeons WHERE surgeon_id = @SurgeonID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@SurgeonID", surgeonId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridViewSurgeons.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no surgeon is found
+                        MessageBox.Show("Surgeon not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for surgeon: " + ex.Message);
+                }
+            }
+        }
+        private void btnAddSurgeon_Click(object sender, EventArgs e)
+        {
+            // Open the AddSurgeonForm when the Add Surgeon button is clicked
+            AddSurgeonForm addSurgeonForm = new AddSurgeonForm();
+            addSurgeonForm.ShowDialog();  // Display the form as a dialog
+        }
+
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void SurgeonsForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+    }
+}
