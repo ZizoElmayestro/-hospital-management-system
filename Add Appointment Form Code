@@ -1,0 +1,58 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddAppointments: Form
+    {
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddAppointments()
+        {
+            InitializeComponent();
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            // Validate the inputs
+            if (string.IsNullOrEmpty(txtPatientID.Text) || string.IsNullOrEmpty(txtDoctorID.Text) ||
+                string.IsNullOrEmpty(txtReasonForVisit.Text) || dtpAppointmentDate.Text == null)
+            {
+                MessageBox.Show("Please fill in all fields.");
+                return;
+            }
+
+            // Insert the new appointment into the database
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "INSERT INTO Appointments (patient_id, doctor_id, appointment_date, reason_for_visit) " +
+                                   "VALUES (@PatientID, @DoctorID, @AppointmentDate, @ReasonForVisit)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@PatientID", txtPatientID.Text);
+                    cmd.Parameters.AddWithValue("@DoctorID", txtDoctorID.Text);
+                    cmd.Parameters.AddWithValue("@AppointmentDate", dtpAppointmentDate.Text);
+                    cmd.Parameters.AddWithValue("@ReasonForVisit", txtReasonForVisit.Text);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    MessageBox.Show("New appointment added successfully!");
+                    this.Close();  // Close the form after adding the appointment
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error adding appointment: " + ex.Message);
+                }
+            }
+        }
+
+        private void AddAppointments_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
