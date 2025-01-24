@@ -1,0 +1,101 @@
+// Form8.cs
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class Form8 : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public Form8()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtStaffID TextBox
+        private void txtStaffID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchCookingStaff();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchCookingStaff();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display cooking staff information in DataGridView
+        private void SearchCookingStaff()
+        {
+            int staffId;
+            // Validate if the input Staff ID is a valid integer
+            if (!int.TryParse(txtStaffID.Text, out staffId))
+            {
+                MessageBox.Show("Please enter a valid Staff ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for cooking staff by their ID
+                    string query = "SELECT first_name, last_name, contact_number, shift_time " +
+                                   "FROM CookingStaff WHERE staff_id = @StaffID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@StaffID", staffId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no staff is found
+                        MessageBox.Show("Cooking staff not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for cooking staff: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the "Add Staff" button click
+        private void btnAddStaff_Click(object sender, EventArgs e)
+        {
+            // Open the AddForm when the button is clicked
+           AddCookingStaff addForm = new AddCookingStaff();
+            addForm.Show();  // Show the AddForm as a new window
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void CookingStaffForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+
+        private void Form8_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
