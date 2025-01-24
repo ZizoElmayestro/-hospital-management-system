@@ -1,0 +1,101 @@
+using System;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class Main : Form
+    {
+        public Main()
+        {
+            InitializeComponent();
+            InitializeComboBox(); // Initialize ComboBox with table names
+        }
+
+        // Initialize the ComboBox with table names
+        private void InitializeComboBox()
+        {
+            comboBoxTables.Items.Add("Doctors");
+            comboBoxTables.Items.Add("Surgeons");
+            comboBoxTables.Items.Add("Nurses");
+            comboBoxTables.Items.Add("Patients");
+            comboBoxTables.Items.Add("Appointments");
+            comboBoxTables.Items.Add("Cleaning Staff");
+            comboBoxTables.Items.Add("Cooking Staff");
+            comboBoxTables.Items.Add("Pharmacy Staff");
+            comboBoxTables.Items.Add("Ambulance Drivers");
+            comboBoxTables.Items.Add("Prescription");
+            comboBoxTables.Items.Add("Departments");
+            comboBoxTables.SelectedIndex = 0; // Set default selection to "Doctors"
+        }
+
+        // ComboBox SelectedIndexChanged Event to open corresponding form
+        private void BtnOpenForm_Click(object sender, EventArgs e)
+        {
+
+
+            string selectedTable = comboBoxTables.SelectedItem.ToString();
+            OpenFormForSelectedTable(selectedTable);
+        }
+
+        // Open the corresponding form based on the selected table
+        private void OpenFormForSelectedTable(string table)
+        {
+            switch (table)
+            {
+                case "Doctors":
+                    DoctorsForm doctorsForm = new DoctorsForm();
+                    doctorsForm.Show();
+                    break;
+                case "Surgeons":
+                    SurgeonsForm surgeonsForm = new SurgeonsForm();
+                    surgeonsForm.Show();
+                    break;
+                case "Nurses":
+                    NursesForm nursesForm = new NursesForm();
+                    nursesForm.Show();
+                    break;
+                case "Patients":
+                    PatientsForm patientsForm = new PatientsForm();
+                    patientsForm.Show();
+                    break;
+                case "Appointments":
+                    AppointmentsForm appointmentsForm = new AppointmentsForm();
+                    appointmentsForm.Show();
+                    break;
+                case "Cleaning Staff":
+                    Form7 cleaningStaffForm = new Form7();
+                    cleaningStaffForm.Show();
+                    break;
+                case "Cooking Staff":
+                    Form8 cookingStaffForm = new Form8();
+                    cookingStaffForm.Show();
+                    break;
+                case "Pharmacy Staff":
+                    PharmacyStaffForm pharmacyStaffForm = new PharmacyStaffForm();
+                    pharmacyStaffForm.Show();
+                    break;
+                case "Ambulance Drivers":
+                    DriversForm ambulanceDriversForm = new DriversForm();
+                    ambulanceDriversForm.Show();
+                    break;
+                case "Prescription":
+                    PrescriptionForm prescriptionForm = new PrescriptionForm();
+                    prescriptionForm.Show();
+                    break;
+                case "Departments":
+                   DepartmentsForm departments = new DepartmentsForm();
+                    departments.Show();
+                    break;
+                
+                default:
+                    MessageBox.Show("Invalid selection.");
+                    break;
+            }
+        }
+
+       
+        private void BtnOpenForm_Click_1(object sender, EventArgs e)
+        {
+        }
+    }
+}
