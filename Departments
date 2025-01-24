@@ -1,0 +1,86 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class DepartmentsForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public DepartmentsForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtDepartmentID TextBox
+        private void txtDepartmentID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchDepartment();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchDepartment();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display department information in DataGridView
+        private void SearchDepartment()
+        {
+            int departmentId;
+            // Validate if the input Department ID is a valid integer
+            if (!int.TryParse(txtDepartmentID.Text, out departmentId))
+            {
+                MessageBox.Show("Please enter a valid Department ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for departments by their department_id
+                    string query = "SELECT department_id, department_name FROM Departments WHERE department_id = @DepartmentID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@DepartmentID", departmentId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no department is found
+                        MessageBox.Show("Department not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for department: " + ex.Message);
+                }
+            }
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void DepartmentsForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+    }
+}
