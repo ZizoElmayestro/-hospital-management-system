@@ -1,0 +1,252 @@
+-- Create the database 
+CREATE DATABASE HospitalSystem; 
+USE HospitalSystem; -- Patients Table 
+CREATE TABLE Patients ( 
+    patient_id INT IDENTITY(1,1) PRIMARY KEY, 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    date_of_birth DATE, 
+    gender NVARCHAR(10),   
+    contact_number NVARCHAR(15), 
+    address NVARCHAR(MAX 
+); -- Doctors Table 
+CREATE TABLE Doctors ( 
+    doctor_id INT IDENTITY(1,1) PRIMARY KEY, 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    specialty NVARCHAR(100), 
+    contact_number NVARCHAR(15), 
+    email NVARCHAR(100), 
+    doctor_dep_id INT, 
+    FOREIGN KEY (doctor_dep_id) REFERENCES Departments(department_id) 
+); -- Surgeons Table  
+CREATE TABLE Surgeons ( 
+   surgeon_name NVARCHAR(100), 
+   surgeon_id INT IDENTITY(1,1) PRIMARY KEY, 
+    surgery_specialty NVARCHAR(100), 
+    years_of_experience INT, 
+   surgeon_dep_id INT, 
+    FOREIGN KEY (surgeon_dep_id ) REFERENCES Departments(department_id) 
+); -- Nurses Table 
+CREATE TABLE Nurses ( 
+    nurse_id INT IDENTITY(1,1) PRIMARY KEY, 
+Page 5 of 10 
+ 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    department NVARCHAR(100), -- E.g., Emergency, Cardiology 
+    contact_number NVARCHAR(15), 
+    email NVARCHAR(100), 
+    nurse_dep_id INT , 
+    FOREIGN KEY (nurse_dep_id) REFERENCES Departments(department_id) 
+); -- Cleaning Staff Table 
+CREATE TABLE CleaningStaff ( 
+    staff_id INT IDENTITY(1,1) PRIMARY KEY, 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    contact_number NVARCHAR(15), 
+    shift_time NVARCHAR(10),   
+    CHECK (shift_time IN ('Morning', 'Afternoon', 'Night')) 
+); -- Cooking Staff Table 
+CREATE TABLE CookingStaff ( 
+    staff_id INT IDENTITY(1,1) PRIMARY KEY, 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    contact_number NVARCHAR(15), 
+    shift_time NVARCHAR(10),   
+    CHECK (shift_time IN ('Morning', 'Afternoon', 'Night')) 
+); 
+CREATE TABLE PharmacyStaff ( 
+    staff_id INT IDENTITY(1,1) PRIMARY KEY, 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    contact_number NVARCHAR(15), 
+    email NVARCHAR(100), 
+    role NVARCHAR(20),   
+    CHECK (role IN ('Pharmacist', 'Technician')) 
+); -- Ambulance Drivers Table 
+CREATE TABLE AmbulanceDrivers ( 
+    driver_id INT IDENTITY(1,1) PRIMARY KEY, 
+Page 6 of 10 
+ 
+    first_name NVARCHAR(100), 
+    last_name NVARCHAR(100), 
+    contact_number NVARCHAR(15), 
+    license_number NVARCHAR(100) 
+); 
+ -- Appointments Table (linking patients with doctors) 
+CREATE TABLE Appointments ( 
+    appointment_id INT IDENTITY(1,1) PRIMARY KEY, 
+    patient_id INT, 
+    doctor_id INT, 
+    appointment_date DATETIME, 
+    reason_for_visit NVARCHAR(MAX), 
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id), 
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id) 
+); -- Prescriptions Table (linking doctors and patients for prescribed medicines) 
+CREATE TABLE Prescriptions ( 
+    prescription_id INT IDENTITY(1,1) PRIMARY KEY, 
+    patient_id INT, 
+    doctor_id INT, 
+    prescription_date DATE, 
+    medication_details NVARCHAR(MAX), 
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id), 
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(doctor_id) 
+); -- Departments Table (for categorizing medical staff) 
+CREATE TABLE Departments ( 
+    department_id INT IDENTITY(1,1) PRIMARY KEY, 
+    department_name NVARCHAR(100) 
+); 
+insert into Doctors values ('ahmed','abo','bones',null,null); 
+ insert into Surgeons values('mo','heart',5); 
+ insert into Surgeons values('yasser','brain',3); 
+INSERT INTO Doctors (first_name, last_name, specialty, contact_number, email) 
+VALUES  
+    ('John', 'Doe', 'Cardiology', '555-1234', 'johndoe@example.com',1), 
+    ('Jane', 'Smith', 'Orthopedics', '555-5678', 'janesmith@example.com',2), 
+Page 7 of 10 
+ 
+    ('Emily', 'Johnson', 'Neurology', '555-8765', 'emilyjohnson@example.com',3), 
+    ('Michael', 'Brown', 'Pediatrics', '555-4321', 'michaelbrown@example.com',4), 
+    ('Sarah', 'Williams', 'Dermatology', '555-6789', 'sarahwilliams@example.com',5), 
+    ('David', 'Miller', 'Radiology', '555-9876', 'davidmiller@example.com',6), 
+    ('Olivia', 'Davis', 'Oncology', '555-5432', 'oliviadavis@example.com',7), 
+    ('Daniel', 'Martinez', 'Gastroenterology', '555-6543', 'danielmartinez@example.com',8), 
+    ('Sophia', 'Garcia', 'Endocrinology', '555-7654', 'sophiagarcia@example.com',9), 
+    ('William', 'Wilson', 'Urology', '555-8760', 'williamwilson@example.com',10); 
+ 
+ INSERT INTO Surgeons (surgeon_name, surgery_specialty, years_of_experience) 
+VALUES  
+    ('John Doe', 'Cardiothoracic Surgery', 15,1), 
+    ('Jane Smith', 'Orthopedic Surgery', 12,2), 
+    ('Emily Johnson', 'Neurosurgery', 8,3), 
+    ('Michael Brown', 'Pediatric Surgery', 10,4), 
+    ('Sarah Williams', 'Plastic Surgery', 18,5), 
+    ('David Miller', 'General Surgery', 20,6), 
+    ('Olivia Davis', 'Oncology Surgery', 6,7), 
+    ('Daniel Martinez', 'Vascular Surgery', 14,8), 
+    ('Sophia Garcia', 'Trauma Surgery', 9,10), 
+    ('William Wilson', 'Urological Surgery', 7,9); 
+ 
+ INSERT INTO Patients (first_name, last_name, date_of_birth, gender, contact_number, address) 
+VALUES  
+('Lucas', 'Martins', '1985-07-15', 'Male', '555-1234', '1234 Elm Street, Springfield, IL'), 
+('Sophia', 'Garcia', '1990-03-22', 'Female', '555-5678', '5678 Oak Avenue, Lincoln, NE'), 
+('Gabriel', 'Rodrigues', '1978-12-01', 'Male', '555-8765', '1357 Maple Road, Chicago, IL'), 
+('Lara', 'Costa', '1983-09-18', 'Female', '555-1122', '2468 Pine Street, Denver, CO'), 
+('Eduardo', 'Fernandes', '1975-06-30', 'Male', '555-3344', '4812 Birch Lane, Austin, TX'), 
+('Beatriz', 'Silva', '1995-11-20', 'Female', '555-5567', '5791 Cedar Drive, Portland, OR'), 
+('Rafael', 'Oliveira', '1980-04-05', 'Male', '555-7890', '3905 Redwood Avenue, Seattle, WA'), 
+('Isabela', 'Alves', '1992-01-13', 'Female', '555-2233', '6543 Willow Way, Madison, WI'), 
+('Mateus', 'Pereira', '2000-08-10', 'Male', '555-4455', '7384 Elmwood Road, Dallas, TX'), 
+('Mariana', 'Souza', '1998-02-25', 'Female', '555-6677', '8305 Sunset Boulevard, Los Angeles, CA'); 
+ 
+INSERT INTO Nurses (first_name, last_name, department, contact_number, email) 
+VALUES 
+('Alice', 'Johnson', 'Emergency', '555-1234', 'alice.johnson@example.com',1), 
+Page 8 of 10 
+ 
+('Bob', 'Smith', 'Cardiology', '555-5678', 'bob.smith@example.com',2), 
+('Cathy', 'Williams', 'Pediatrics', '555-8765', 'cathy.williams@example.com',3), 
+('David', 'Jones', 'Orthopedics', '555-4321', 'david.jones@example.com',4), 
+('Eva', 'Brown', 'Neurology', '555-6789', 'eva.brown@example.com',5), 
+('Frank', 'Davis', 'Surgery', '555-1122', 'frank.davis@example.com',6), 
+('Grace', 'Miller', 'Oncology', '555-3344', 'grace.miller@example.com',7), 
+('Helen', 'Wilson', 'ICU', '555-9988', 'helen.wilson@example.com',8), 
+('Ivan', 'Taylor', 'Emergency', '555-5566', 'ivan.taylor@example.com',9), 
+('Jack', 'Anderson', 'Cardiology', '555-7777', 'jack.anderson@example.com',10); 
+ 
+INSERT INTO CleaningStaff (first_name, last_name, contact_number, shift_time) 
+VALUES 
+('Olivia', 'Harris', '555-2451', 'Morning'), 
+('Liam', 'Clark', '555-3245', 'Afternoon'), 
+('Sophia', 'Lewis', '555-5423', 'Night'), 
+('Ethan', 'Walker', '555-6543', 'Morning'), 
+('Ava', 'Young', '555-2345', 'Afternoon'), 
+('Mason', 'King', '555-7654', 'Night'), 
+('Isabella', 'Scott', '555-8765', 'Morning'), 
+('Noah', 'Adams', '555-3456', 'Afternoon'), 
+('Mia', 'Baker', '555-4567', 'Night'), 
+('Lucas', 'Nelson', '555-5678', 'Morning'); 
+ 
+INSERT INTO CookingStaff (first_name, last_name, contact_number, shift_time) 
+VALUES 
+('Ethan', 'Roberts', '555-9823', 'Morning'), 
+('Lily', 'Martinez', '555-6742', 'Afternoon'), 
+('Gabriel', 'Rodriguez', '555-2391', 'Night'), 
+('Isla', 'Gonzalez', '555-5467', 'Morning'), 
+('Mason', 'Perez', '555-8654', 'Afternoon'), 
+('Ella', 'Taylor', '555-7539', 'Night'), 
+('Jack', 'Lee', '555-3476', 'Morning'), 
+('Chloe', 'Wilson', '555-1948', 'Afternoon'), 
+('Benjamin', 'Miller', '555-6587', 'Night'), 
+('Zoe', 'Davis', '555-9806', 'Morning'); 
+ 
+INSERT INTO PharmacyStaff (first_name, last_name, contact_number, email, role) 
+VALUES 
+Page 9 of 10 
+ 
+('John', 'Walker', '555-2123', 'john.walker@example.com', 'Pharmacist'), 
+('Sarah', 'Johnson', '555-3245', 'sarah.johnson@example.com', 'Technician'), 
+('Michael', 'Smith', '555-5678', 'michael.smith@example.com', 'Pharmacist'), 
+('Emily', 'Davis', '555-8765', 'emily.davis@example.com', 'Technician'), 
+('Robert', 'Brown', '555-4321', 'robert.brown@example.com', 'Pharmacist'), 
+('Olivia', 'Taylor', '555-2345', 'olivia.taylor@example.com', 'Technician'), 
+('David', 'Miller', '555-6543', 'david.miller@example.com', 'Pharmacist'), 
+('Sophia', 'Wilson', '555-7654', 'sophia.wilson@example.com', 'Technician'), 
+('James', 'Moore', '555-1122', 'james.moore@example.com', 'Pharmacist'), 
+('Ava', 'Clark', '555-3344', 'ava.clark@example.com', 'Technician'); 
+ 
+INSERT INTO AmbulanceDrivers (first_name, last_name, contact_number, license_number) 
+VALUES 
+('Noah', 'Adams', '555-2356', 'A987654321'), 
+('Lily', 'Parker', '555-3467', 'B876543210'), 
+('Lucas', 'Evans', '555-4578', 'C765432109'), 
+('Mia', 'Collins', '555-5689', 'D654321098'), 
+('Jacob', 'Roberts', '555-6790', 'E543210987'), 
+('Ella', 'Baker', '555-7801', 'F432109876'), 
+('Liam', 'Nelson', '555-8912', 'G321098765'), 
+('Grace', 'Harris', '555-9023', 'H210987654'), 
+('Jack', 'Scott', '555-0134', 'I109876543'), 
+('Amelia', 'Green', '555-1245', 'J998765432'); 
+ 
+INSERT INTO Appointments (patient_id, doctor_id, appointment_date, reason_for_visit) 
+VALUES 
+(1, 2, '2024-01-15 09:00:00', 'Routine Checkup'), 
+(2, 3, '2024-01-16 14:00:00', 'Fever and Fatigue'), 
+(3, 1, '2024-01-17 10:30:00', 'Follow-up Consultation'), 
+(4, 5, '2024-01-18 16:00:00', 'Skin Rash'), 
+(5, 4, '2024-01-19 08:45:00', 'Back Pain'), 
+(6, 2, '2024-01-20 11:00:00', 'Blood Pressure Monitoring'), 
+(7, 6, '2024-01-21 15:00:00', 'Stomach Pain'), 
+(8, 1, '2024-01-22 13:30:00', 'Annual Health Checkup'), 
+(9, 3, '2024-01-23 17:00:00', 'Headache and Dizziness'), 
+(10, 4, '2024-01-24 14:30:00', 'Chronic Cough'); 
+ 
+INSERT INTO Prescriptions (patient_id, doctor_id, prescription_date, medication_details) 
+Page 10 of 10 
+ 
+VALUES 
+(1, 2, '2024-01-15', 'Paracetamol 500mg - 1 tablet every 4 hours for fever'), 
+(2, 3, '2024-01-16', 'Amoxicillin 250mg - 1 capsule twice a day for 7 days'), 
+(3, 1, '2024-01-17', 'Ibuprofen 200mg - 1 tablet every 6 hours for pain'), 
+(4, 5, '2024-01-18', 'Hydrocortisone cream - Apply to affected area twice a day'), 
+(5, 4, '2024-01-19', 'Methocarbamol 750mg - 1 tablet every 8 hours for muscle spasms'), 
+(6, 2, '2024-01-20', 'Lisinopril 10mg - 1 tablet daily for high blood pressure'), 
+(7, 6, '2024-01-21', 'Omeprazole 20mg - 1 capsule every morning before breakfast'), 
+(8, 1, '2024-01-22', 'Vitamin D 1000 IU - 1 tablet daily'), 
+(9, 3, '2024-01-23', 'Diphenhydramine 25mg - 1 tablet every 4-6 hours for allergy relief'), 
+(10, 4, '2024-01-24', 'Cough syrup - 2 teaspoons every 4 hours'); 
+ 
+INSERT INTO Departments (department_name) 
+VALUES 
+('Cardiology'), 
+('Neurology'), 
+('Orthopedics'), 
+('Pediatrics'), 
+('Emergency'), 
+('Dermatology'), 
+('Oncology'), 
+('Radiology'), 
+('Gynecology'), 
+('Psychiatry');
