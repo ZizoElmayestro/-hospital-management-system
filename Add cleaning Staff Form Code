@@ -1,0 +1,69 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddCleaningStaffForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddCleaningStaffForm()
+        {
+            InitializeComponent();
+            InitializecmpTime();
+        }
+        private void InitializecmpTime()
+        {
+            cmbShiftTime.Items.Add("Morning");
+            cmbShiftTime.Items.Add("Afternoon");
+            cmbShiftTime.Items.Add("Night");
+        }
+
+        // Event handler for adding new cleaning staff
+        private void btnAddCleaningStaff_Click(object sender, EventArgs e)
+        {
+            string firstName = txtFirstName.Text;
+            string lastName = txtLastName.Text;
+            string contactNumber = txtContactNumber.Text;
+            string shiftTime = cmbShiftTime.SelectedItem.ToString(); // Getting selected shift time
+
+            // Insert the cleaning staff details into the database
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "INSERT INTO CleaningStaff (first_name, last_name, contact_number, shift_time) " +
+                                   "VALUES (@firstName, @lastName, @contactNumber, @shiftTime)";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@lastName", lastName);
+                    cmd.Parameters.AddWithValue("@contactNumber", contactNumber);
+                    cmd.Parameters.AddWithValue("@shiftTime", shiftTime);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Cleaning staff added successfully.");
+                    this.Close(); // Optionally, close the form after adding the cleaning staff
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void AddCleaningStaffForm_Load(object sender, EventArgs e)
+        {
+            // Initializing the ComboBox for shift times
+            cmbShiftTime.Items.Add("Morning");
+            cmbShiftTime.Items.Add("Afternoon");
+            cmbShiftTime.Items.Add("Night");
+
+            // Set default selection to "Morning"
+            cmbShiftTime.SelectedIndex = 0;
+        }
+    }
+}
