@@ -1,0 +1,96 @@
+// DriversForm.cs
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class DriversForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public DriversForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtDriverID TextBox
+        private void txtDriverID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchAmbulanceDriver();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchAmbulanceDriver();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display ambulance driver information in DataGridView
+        private void SearchAmbulanceDriver()
+        {
+            int driverId;
+            // Validate if the input Driver ID is a valid integer
+            if (!int.TryParse(txtDriverID.Text, out driverId))
+            {
+                MessageBox.Show("Please enter a valid Driver ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for ambulance driver by their ID
+                    string query = "SELECT first_name, last_name, contact_number, license_number " +
+                                   "FROM AmbulanceDrivers WHERE driver_id = @DriverID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@DriverID", driverId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no driver is found
+                        MessageBox.Show("Ambulance driver not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for ambulance driver: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the "Add Driver" button click
+        private void btnAddDriver_Click(object sender, EventArgs e)
+        {
+            // Open the AddForm when the button is clicked
+            AddDriver addForm = new AddDriver();
+            addForm.Show();  // Show the AddForm as a new window
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void AmbulanceDriversForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+    }
+}
