@@ -1,0 +1,84 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddDoctorForm : Form
+    {
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddDoctorForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for the Add button click
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            // Collect doctor information from the form fields
+            string firstName = txtFirstName.Text;
+            string lastName = txtLastName.Text;
+            string specialty = txtSpecialty.Text;
+            string contactNumber = txtContactNumber.Text;
+            string email = txtEmail.Text;
+
+            // Validate the input fields
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                MessageBox.Show("Please enter the first name.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                MessageBox.Show("Please enter the last name.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(specialty))
+            {
+                MessageBox.Show("Please enter the specialty.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(contactNumber))
+            {
+                MessageBox.Show("Please enter the contact number.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show("Please enter a valid email address.");
+                return;
+            }
+
+            // Insert the new doctor data into the database
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    string query = "INSERT INTO Doctors (first_name, last_name, specialty, contact_number, email) " +
+                                   "VALUES (@FirstName, @LastName, @Specialty, @ContactNumber, @Email)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@FirstName", firstName);
+                    cmd.Parameters.AddWithValue("@LastName", lastName);
+                    cmd.Parameters.AddWithValue("@Specialty", specialty);
+                    cmd.Parameters.AddWithValue("@ContactNumber", contactNumber);
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+
+                    MessageBox.Show("Doctor added successfully!");
+                    this.DialogResult = DialogResult.OK;  // Close form with OK result
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error adding doctor: " + ex.Message);
+            }
+        }
+
+       
+    }
+}
