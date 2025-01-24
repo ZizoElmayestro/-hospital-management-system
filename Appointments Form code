@@ -1,0 +1,101 @@
+// AppointmentsForm.cs
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AppointmentsForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AppointmentsForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtAppointmentID TextBox
+        private void txtAppointmentID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchAppointment();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchAppointment();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display appointment information in DataGridView
+        private void SearchAppointment()
+        {
+            int appointmentId;
+            // Validate if the input Appointment ID is a valid integer
+            if (!int.TryParse(txtAppointmentID.Text, out appointmentId))
+            {
+                MessageBox.Show("Please enter a valid Appointment ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for appointments by their appointment_id
+                    string query = "SELECT a.appointment_id, a.appointment_date, a.reason_for_visit, " +
+                                   "p.first_name AS patient_first_name, p.last_name AS patient_last_name, " +
+                                   "d.first_name AS doctor_first_name, d.last_name AS doctor_last_name " +
+                                   "FROM Appointments a " +
+                                   "JOIN Patients p ON a.patient_id = p.patient_id " +
+                                   "JOIN Doctors d ON a.doctor_id = d.doctor_id " +
+                                   "WHERE a.appointment_id = @AppointmentID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@AppointmentID", appointmentId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no appointment is found
+                        MessageBox.Show("Appointment not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for appointment: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the "Add Appointment" button click
+        private void btnAddAppointment_Click(object sender, EventArgs e)
+        {
+            // Open the AddAppointmentForm when the button is clicked
+            AddAppointments addAppointmentForm = new AddAppointments();
+            addAppointmentForm.Show();  // Show the AddAppointmentForm as a new window
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void AppointmentsForm_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+    }
+}
