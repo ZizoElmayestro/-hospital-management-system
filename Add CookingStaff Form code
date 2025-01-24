@@ -1,0 +1,81 @@
+// AddForm.cs
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddCookingStaff : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddCookingStaff()
+        {
+            InitializeComponent();
+            InitializeCmpTime();
+        }
+
+        private void InitializeCmpTime()
+        {
+            cmbShiftTime.Items.Add("Morning");
+            cmbShiftTime.Items.Add("Afternoon");
+            cmbShiftTime.Items.Add("Night");
+
+        }
+
+        // Event handler for the Add button click
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            // Validate input fields
+            if (string.IsNullOrEmpty(txtFirstName.Text) || string.IsNullOrEmpty(txtLastName.Text) ||
+                string.IsNullOrEmpty(txtContactNumber.Text) || string.IsNullOrEmpty(cmbShiftTime.SelectedItem?.ToString()))
+            {
+                MessageBox.Show("Please fill all fields.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to insert a new cooking staff
+                    string query = "INSERT INTO CookingStaff (first_name, last_name, contact_number, shift_time) " +
+                                   "VALUES (@FirstName, @LastName, @ContactNumber, @ShiftTime)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@FirstName", txtFirstName.Text);
+                    cmd.Parameters.AddWithValue("@LastName", txtLastName.Text);
+                    cmd.Parameters.AddWithValue("@ContactNumber", txtContactNumber.Text);
+                    cmd.Parameters.AddWithValue("@ShiftTime", cmbShiftTime.SelectedItem.ToString()); // Get shift time from ComboBox
+
+                    // Open the connection and execute the query
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    // Notify the user
+                    MessageBox.Show("New Cooking staff added successfully!");
+                    this.Close(); // Close the form after adding
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error adding cooking staff: " + ex.Message);
+                }
+            }
+        }
+
+        // Initialize the ComboBox with shift options when the form loads
+        private void AddForm_Load(object sender, EventArgs e)
+        {
+            // Add the shift options to the ComboBox
+            cmbShiftTime.Items.Add("Morning");
+            cmbShiftTime.Items.Add("Afternoon");
+            cmbShiftTime.Items.Add("Night");
+
+            // Set a default selection (optional)
+            cmbShiftTime.SelectedIndex = 0;
+        }
+    }
+}
