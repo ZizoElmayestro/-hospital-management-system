@@ -1,0 +1,68 @@
+
+ using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddPharmacyStaff : Form
+    {
+        // Connection string to connect to the database
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddPharmacyStaff()
+        {
+            InitializeComponent();
+            Initializecmprole();
+        }
+        private void Initializecmprole()
+        {
+            cmbRole.Items.Add("Pharmacist");
+            cmbRole.Items.Add("Technician");
+        }
+
+        // Button Click Event to add staff
+        private void btnAddStaff_Click(object sender, EventArgs e)
+        {
+            string firstName = txtFirstName.Text;
+            string lastName = txtLastName.Text;
+            string contactNumber = txtContactNumber.Text;
+            string email = txtEmail.Text;
+            string role = cmbRole.SelectedItem.ToString();
+
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(contactNumber) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role))
+            {
+                MessageBox.Show("Please fill in all fields.");
+                return;
+            }
+
+ 
+            
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    string query = "INSERT INTO PharmacyStaff (first_name, last_name, contact_number, email, role) VALUES (@FirstName, @LastName, @ContactNumber, @Email, @Role)";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@FirstName", firstName);
+                    command.Parameters.AddWithValue("@LastName", lastName);
+                    command.Parameters.AddWithValue("@ContactNumber", contactNumber);
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Role", role);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    MessageBox.Show("Staff added successfully!");
+                    this.Close();
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
+        }
+    }
+}
