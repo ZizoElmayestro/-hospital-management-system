@@ -1,0 +1,89 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class PharmacyStaffForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public PharmacyStaffForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtStaffID TextBox
+        private void txtStaffID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchPharmacyStaff();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchPharmacyStaff();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display pharmacy staff information in DataGridView
+        private void SearchPharmacyStaff()
+        {
+            int staffId;
+            // Validate if the input Staff ID is a valid integer
+            if (!int.TryParse(txtStaffID.Text, out staffId))
+            {
+                MessageBox.Show("Please enter a valid Staff ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for pharmacy staff by their ID
+                    string query = "SELECT first_name, last_name, contact_number, email, role " +
+                                   "FROM PharmacyStaff WHERE staff_id = @StaffID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@StaffID", staffId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no staff is found
+                        MessageBox.Show("Pharmacy staff not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for pharmacy staff: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for Add Pharmacy Staff button click
+        private void btnAddPharmacyStaff_Click(object sender, EventArgs e)
+        {
+            // Open the Add Pharmacy Staff form
+            AddPharmacyStaff addForm = new AddPharmacyStaff();
+            addForm.Show();
+        }
+    }
+}
