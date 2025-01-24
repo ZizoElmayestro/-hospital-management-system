@@ -1,0 +1,101 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class PatientsForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public PatientsForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtPatientID TextBox
+        private void txtPatientID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchPatient();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchPatient();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display patient information in DataGridView
+        private void SearchPatient()
+        {
+            int patientId;
+            // Validate if the input Patient ID is a valid integer
+            if (!int.TryParse(txtPatientID.Text, out patientId))
+            {
+                MessageBox.Show("Please enter a valid Patient ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for a patient by their ID
+                    string query = "SELECT first_name, last_name, date_of_birth, gender, contact_number, address " +
+                                   "FROM Patients WHERE patient_id = @PatientID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@PatientID", patientId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no patient is found
+                        MessageBox.Show("Patient not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for patient: " + ex.Message);
+                }
+            }
+        }
+
+        // Optional: Load data or setup when form loads (if needed)
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Initial form setup or data loading code if necessary
+        }
+
+        // Event handler for the Add Patient button click
+        private void btnAddPatient_Click(object sender, EventArgs e)
+        {
+            // Create a new form for adding patient information
+            using (AddPatientForm addPatientForm = new AddPatientForm())
+            {
+                if (addPatientForm.ShowDialog() == DialogResult.OK)
+                {
+                    // Patient was added successfully, refresh the DataGridView or show a message
+                    MessageBox.Show("Patient added successfully!");
+                }
+            }
+        }
+    }
+}
