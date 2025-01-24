@@ -1,0 +1,80 @@
+using System;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class AddSurgeonForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public AddSurgeonForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for the Add button click in AddSurgeonForm
+        private void btnAddSurgeon_Click(object sender, EventArgs e)
+        {
+            // Collect surgeon details from the form fields
+            string surgeonName = txtSurgeonName.Text;
+            string surgerySpecialty = txtSurgerySpecialty.Text;
+            int yearsOfExperience;
+            bool isValidExperience = int.TryParse(txtYearsOfExperience.Text, out yearsOfExperience);
+
+            // Validate the input fields
+            if (string.IsNullOrWhiteSpace(surgeonName))
+            {
+                MessageBox.Show("Please enter the surgeon's name.");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(surgerySpecialty))
+            {
+                MessageBox.Show("Please enter the surgery specialty.");
+                return;
+            }
+            if (!isValidExperience || yearsOfExperience < 0)
+            {
+                MessageBox.Show("Please enter a valid number for years of experience.");
+                return;
+            }
+
+            // Insert the new surgeon into the database
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    string query = "INSERT INTO Surgeons (surgeon_name, surgery_specialty, years_of_experience) " +
+                                   "VALUES (@SurgeonName, @SurgerySpecialty, @YearsOfExperience)";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@SurgeonName", surgeonName);
+                    cmd.Parameters.AddWithValue("@SurgerySpecialty", surgerySpecialty);
+                    cmd.Parameters.AddWithValue("@YearsOfExperience", yearsOfExperience);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+
+                    MessageBox.Show("Surgeon added successfully!");
+                    // Optionally clear the form fields after successful insertion
+                    ClearFormFields();
+                    this.DialogResult = DialogResult.OK;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error adding surgeon: " + ex.Message);
+            }
+        }
+
+        // Method to clear form fields after a successful insertion
+        private void ClearFormFields()
+        {
+            txtSurgeonName.Clear();
+            txtSurgerySpecialty.Clear();
+            txtYearsOfExperience.Clear();
+        }
+    }
+}
