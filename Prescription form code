@@ -1,0 +1,104 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace HospitalSystemGUI
+{
+    public partial class PrescriptionForm : Form
+    {
+        // Connection string (replace with your actual database connection details)
+        private string connectionString = @"Server=ZUKSH-LAP\SQLEXPRESS;Database=HospitalSystem;Integrated Security=True;";
+
+        public PrescriptionForm()
+        {
+            InitializeComponent();
+        }
+
+        // Event handler for when you press Enter in the txtPrescriptionID TextBox
+        private void txtPrescriptionID_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchPrescription();  // Trigger the search when the Enter key is pressed
+            }
+        }
+
+        // Event handler for the Search button click
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            SearchPrescription();  // Trigger the search when the button is clicked
+        }
+
+        // Method to search and display prescription information in DataGridView
+        private void SearchPrescription()
+        {
+            int prescriptionId;
+            // Validate if the input Prescription ID is a valid integer
+            if (!int.TryParse(txtPrescriptionID.Text, out prescriptionId))
+            {
+                MessageBox.Show("Please enter a valid Prescription ID.");
+                return;
+            }
+
+            // Use a connection to SQL Server
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    // Define the SQL query to search for prescriptions by their prescription_id
+                    string query = "SELECT p.prescription_id, p.prescription_date, p.medication_details, " +
+                                   "pa.first_name AS patient_first_name, pa.last_name AS patient_last_name, " +
+                                   "d.first_name AS doctor_first_name, d.last_name AS doctor_last_name " +
+                                   "FROM Prescriptions p " +
+                                   "JOIN Patients pa ON p.patient_id = pa.patient_id " +
+                                   "JOIN Doctors d ON p.doctor_id = d.doctor_id " +
+                                   "WHERE p.prescription_id = @PrescriptionID";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@PrescriptionID", prescriptionId);
+
+                    // Create a SqlDataAdapter to execute the query and fill the DataTable
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+
+                    // Display the results in the DataGridView
+                    if (dt.Rows.Count > 0)
+                    {
+                        // Populate the DataGridView with the result data
+                        dataGridView1.DataSource = dt;
+                    }
+                    else
+                    {
+                        // Show message if no prescription is found
+                        MessageBox.Show("Prescription not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Show an error message if an exception occurs
+                    MessageBox.Show("Error searching for prescription: " + ex.Message);
+                }
+            }
+        }
+
+        // Event handler for the "Add Prescription" button click
+        private void btnAddPrescription_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Open the AddPrescriptionForm
+                AddPrescriptions addPrescriptionForm = new AddPrescriptions();
+                addPrescriptionForm.ShowDialog();  // Show the form as a dialog
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors when opening the AddPrescriptionForm
+                MessageBox.Show("Error opening Add Prescription form: " + ex.Message);
+            }
+        }
+
+       
+    }
+}
